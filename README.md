@@ -76,7 +76,7 @@ git clone https://github.com/LoveBloodAndDiamonds/filipchuks-trading-idea-client
 cd filipchuks-trading-idea-client-dist
 ```
 
-### 4. Настройте файл `.env`
+### 4. Настройте файл `.env` и `alembic.ini`
 
 Скопируйте шаблон файла `.env.dist` в `.env`:
 
@@ -88,6 +88,14 @@ cp .env.dist .env
 
 ```bash
 nano .env
+```
+
+Сохраните изменения после редактирования.
+
+На данный момент СУБД изменить нельзя. Но вы можете изменить путь к базе данных в DATABASE_URL в `.env`. Если вы сделали это - то вам так же необходимо указать этот DATABASE_URL в `alembic.ini`:
+
+```bash
+nano alembic.ini
 ```
 
 Сохраните изменения после редактирования.

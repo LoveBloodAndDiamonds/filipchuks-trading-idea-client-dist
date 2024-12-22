@@ -8,8 +8,5 @@ git pull origin main || echo "Git pull failed"
 pip install --upgrade pip --root-user-action=ignore
 pip install --no-cache-dir -r requirements.txt --root-user-action=ignore
 
-# Применение миграций
-alembic upgrade head || echo "Alembic migrations failed"
-
 # Запуск приложения
 exec uvicorn app.__main__:app --host=${APP_HOST} --port=${APP_PORT} --log-level error

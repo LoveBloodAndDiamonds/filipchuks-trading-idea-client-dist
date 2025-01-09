@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+{% block header %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>{{ model.label }}</h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for(__name__ ~ ':index') }}">{{ _("Admin") }}</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ url_for(__name__ ~ ':list', identity=model.identity) }}">{{ model.label }}</a>
+            </li>
+            <li class="breadcrumb-item active">{{ _("Create") }}</li>
+        </ol>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <form action="{{ request.url | safe }}" method="POST" enctype="multipart/form-data">
+                        <div class="card-header">
+                            <div class="container-fluid">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 class="card-title">{{ _("New %(name)s", name=model.name ) }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body border-bottom py-3">
+                            {% block create_form %}
+                                <div class="row">
+                                    {% set section_titles = {
+                                        'ticker': 'Common',
+                                        'deviation_timeframe': 'Deviation settings',
+                                        'strength_timeframe': 'Strength settings',
+                                        'price_range_lower': 'Range filter',
+                                        'cancel_price_lower': 'Cancel filter',
+                                        'take_profit': 'Position exits',
+                                        'comment': 'Social'
+                                    } %}
+                                    {% set shown_sections = [] %}
+
+                                    {% for field in model.get_fields_list(request, 'CREATE' | ra) %}
+                                        {# Проверяем, есть ли у текущего поля соответствующий заголовок #}
+                                        {% if field.name in section_titles and field.name not in shown_sections %}
+                                            {# Добавляем заголовок секции и разделитель только один раз #}
+                                            <div class="col-12 my-3">
+                                                <hr>
+                                                <h3 class="text-center text-muted" style="text-decoration: underline;">{{ section_titles[field.name] }}</h3>
+                                            </div>
+                                            {% set shown_sections = shown_sections + [field.name] %}
+                                        {% endif %}
+                                        <div class="{% if field.name == 'comment' %}col-12{% else %}col-md-6{% endif %} mb-3">
+                                            {% with action=('CREATE'|ra), data=(None if not obj else obj[field.name]), error=errors.get(field.name, None) if errors else None %}
+                                                {% include field.label_template %}
+                                                {% include field.form_template %}
+                                            {% endwith %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                        <div class="card-footer text-black">
+                            <div class="btn-list ms-auto justify-content-end">
+                                <a href="{{ url_for(__name__ ~ ':list', identity=model.identity) }}"
+                                   class="btn btn-danger">{{ _("Cancel") }}</a>
+                                <button type="submit" class="btn btn-success">{{ _("Save") }}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block head_css %}
+    {{ super() }}
+    {% for link in model._additional_css_links(request, "CREATE" | ra) %}
+        <link rel="stylesheet" href="{{ link }}">
+    {% endfor %}
+    <style>
+        .is-invalid .select2-selection {
+            border-color: #d63939 !important;
+        }
+    </style>
+{% endblock %}
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ url_for(__name__ ~ ':statics', path='js/form.js') }}"></script>
+    {% for link in model._additional_js_links(request, "CREATE" | ra) %}
+        <script type="text/javascript" src="{{ link }}"></script>
+    {% endfor %}
+{% endblock %}
